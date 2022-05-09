@@ -24,26 +24,4 @@ func main() {
 	}
 
 	sites.GetOverview().Display()
-
-	//overview := sites.GetOverview()
-	//
-	//fmt.Println(overview.OverallStatus)
-	//fmt.Println("---")
-	//if len(overview.List["major"]) > 0 {
-	//	for _, v := range overview.List["major"] {
-	//		fmt.Println("\u001B[31;1m" + v.Page.Name + "\u001b[0m" + "\u001b[30m" + " (" + v.Page.UpdatedAt.Format("2006 Jan 02") + ") | href=" + v.Page.URL)
-	//	}
-	//}
-	//fmt.Println("---")
-	//if len(overview.List["minor"]) > 0 {
-	//	for _, v := range overview.List["minor"] {
-	//		fmt.Println("\u001b[38;5;208m" + v.Page.Name + "\u001b[0m" + "\u001b[30m" + " (" + v.Page.UpdatedAt.Format("2006 Jan 02") + ") | href=" + v.Page.URL)
-	//	}
-	//}
-	//fmt.Println("---")
-	//if len(overview.List["none"]) > 0 {
-	//	for _, v := range overview.List["none"] {
-	//		fmt.Println("\u001B[32;1m" + v.Page.Name + "\u001b[0m" + "\u001b[30m" + " (" + v.Page.UpdatedAt.Format("2006 Jan 02") + ") | href=" + v.Page.URL)
-	//	}
-	//}
 }
