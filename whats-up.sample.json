@@ -1,0 +1,26 @@
+{
+  "CircleCI": {
+    "url": "https://status.circleci.com",
+    "slug": "/api/v2/status.json"
+  },
+  "CodeClimate": {
+    "url": "https://status.codeclimate.com",
+    "slug": "/api/v2/status.json"
+  },
+  "DataDog": {
+    "url": "https://status.datadoghq.com",
+    "slug": "/api/v2/status.json"
+  },
+  "GitHub": {
+    "url": "https://www.githubstatus.com",
+    "slug": "/api/v2/status.json"
+  },
+  "Reddit": {
+    "url": "https://www.redditstatus.com",
+    "slug": "/api/v2/status.json"
+  },
+  "Sentry": {
+    "url": "https://status.sentry.io",
+    "slug": "/api/v2/status.json"
+  }
+}
