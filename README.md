@@ -1,5 +1,8 @@
 # xbar Plugin: What's Up?
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/2ab2a7aea58a269d2447/maintainability)](https://codeclimate.com/github/sprak3000/xbar-whats-up/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/2ab2a7aea58a269d2447/test_coverage)](https://codeclimate.com/github/sprak3000/xbar-whats-up/test_coverage)
+
 ![What's Up plugin in action](docs/whats-up-sample.png)
 
 This is a plugin for [xbar](https://github.com/matryer/xbar) to quickly show in your macOS menu bar the status of
