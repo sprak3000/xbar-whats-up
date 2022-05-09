@@ -35,6 +35,10 @@ vet: ## Verify `go vet` passes.
 build: ## Build the binary
 	@go build whats-up.1h.go
 
+.PHONY: create-config
+create-config: ## Create the configuration file
+	cp .whats-up.sample.json .whats-up.json
+
 .PHONY: setup-osx-env
 setup-osx-env: brew-deps setup-asdf install-goimports install-gotestsum asdf-reshim setup-pre-commit ## Setup the development environment for OS X
 
