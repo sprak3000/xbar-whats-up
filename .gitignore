@@ -192,5 +192,5 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,macos,linux,intellij+all,go
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
-whats-up.json
+.whats-up.json
 whats-up.1h

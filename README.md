@@ -17,7 +17,7 @@ services you depend on. It currently understands the following formats:
 ## Configuration
 
 ```shell
-cp whats-up.sample.json whats-up.json
+make create-config
 ```
 
 Using CodeClimate's status page (`https://status.codeclimate.com/api/v2/status.json`) as an example, we would create an
@@ -50,5 +50,5 @@ Alternatively, create symbolic links.
 ```shell
 cd ~/.xbar
 ln -s /path/to/what-up.1h whats-up.1h.cgo
-ln -s /path/to/whats-up.json whats-up.json
+ln -s /path/to/.whats-up.json .whats-up.json
 ```
