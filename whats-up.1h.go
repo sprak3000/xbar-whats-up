@@ -24,5 +24,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	sites.GetOverview().Display()
+	sites.GetOverview(service.NewClientServiceFinder(sites), service.ClientReader{}).Display()
 }

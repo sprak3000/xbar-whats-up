@@ -1,11 +1,7 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
-	"net/url"
-	"time"
 
 	"github.com/sprak3000/go-client/client"
 	"github.com/sprak3000/go-glitch/glitch"
@@ -30,31 +26,17 @@ type Site struct {
 type Sites map[string]Site
 
 // GetOverview returns the details about the services monitored
-func (s Sites) GetOverview() status.Overview {
-	f := func(serviceName string, useTLS bool) (url.URL, error) {
-		u, err := url.Parse(s[serviceName].URL)
-		return *u, err
-	}
-
+func (s Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader) status.Overview {
 	overview := status.Overview{
 		OverallStatus: "🟢",
 		List:          map[string][]statuspageio.Response{},
 		Errors:        []string{},
 	}
 
-	resp := statuspageio.Response{}
-
 	for k, v := range s {
-		c := client.NewBaseClient(f, k, true, 10*time.Second, nil)
-		_, respBytes, err := c.MakeRequest(context.Background(), "GET", v.Slug, nil, nil, nil)
-		if err != nil {
-			overview.Errors = append(overview.Errors, fmt.Sprintf("Error for %s: %v", k, err))
-			continue
-		}
-
-		uErr := json.Unmarshal(respBytes, &resp)
-		if uErr != nil {
-			overview.Errors = append(overview.Errors, fmt.Sprintf("Error for %s: %v", k, uErr))
+		resp, rErr := reader.ReadStatus(serviceFinder, k, v.Slug)
+		if rErr != nil {
+			overview.Errors = append(overview.Errors, rErr.Error())
 			continue
 		}
 
