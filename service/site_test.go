@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/sprak3000/go-glitch/glitch"
-	"github.com/sprak3000/whats-up/configuration"
+	"github.com/sprak3000/xbar-whats-up/configuration"
 )
 
 type fileReaderWithFilename struct {

@@ -1,4 +1,4 @@
-module github.com/sprak3000/whats-up
+module github.com/sprak3000/xbar-whats-up
 
 go 1.17
 

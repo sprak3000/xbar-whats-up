@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sprak3000/whats-up/configuration"
-	"github.com/sprak3000/whats-up/service"
+	"github.com/sprak3000/xbar-whats-up/configuration"
+	"github.com/sprak3000/xbar-whats-up/service"
 )
 
 func main() {

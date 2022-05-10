@@ -9,9 +9,9 @@ import (
 
 	"github.com/sprak3000/go-client/client"
 	"github.com/sprak3000/go-glitch/glitch"
-	"github.com/sprak3000/whats-up/configuration"
-	"github.com/sprak3000/whats-up/status"
-	"github.com/sprak3000/whats-up/statuspageio"
+	"github.com/sprak3000/xbar-whats-up/configuration"
+	"github.com/sprak3000/xbar-whats-up/status"
+	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
 // Error codes

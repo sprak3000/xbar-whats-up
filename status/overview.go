@@ -3,7 +3,7 @@ package status
 import (
 	"fmt"
 
-	"github.com/sprak3000/whats-up/statuspageio"
+	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
 // List is a mapping of status codes to services reporting that status code
