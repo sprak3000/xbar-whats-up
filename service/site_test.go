@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
 	"net/url"
@@ -14,6 +15,45 @@ import (
 	"github.com/sprak3000/xbar-whats-up/status"
 	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
+
+func TestUnit_Site_UnmarshalJSON(t *testing.T) {
+	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
+	require.NoError(t, err)
+
+	tests := map[string]struct {
+		siteJSON     []byte
+		expectedSite Site
+		expectedErr  error
+		validate     func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error)
+	}{
+		"base path": {
+			siteJSON: []byte(`{"url":"https://status.codeclimate.com/api/v2/status.json","type":"statuspage.io"}`),
+			expectedSite: Site{
+				URL:  *codeClimateURL,
+				Type: "statuspage.io",
+			},
+			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
+				require.NoError(t, actualErr)
+				require.Equal(t, expectedSite, actualSite)
+			},
+		},
+		"exceptional path- parse URL error": {
+			siteJSON:    []byte(`{"url":":","type":"statuspage.io"}`),
+			expectedErr: errors.New(`parse ":": missing protocol scheme`),
+			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
+				require.Error(t, actualErr)
+				require.Equal(t, expectedErr.Error(), actualErr.Error())
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var s Site
+			err := json.Unmarshal(tc.siteJSON, &s)
+			tc.validate(t, tc.expectedSite, s, tc.expectedErr, err)
+		})
+	}
+}
 
 func TestUnit_GetOverview(t *testing.T) {
 	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")

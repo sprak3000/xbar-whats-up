@@ -41,7 +41,7 @@ func (s *Site) UnmarshalJSON(data []byte) error {
 
 	u, pErr := url.Parse(tmp.URL)
 	if pErr != nil {
-		return err
+		return pErr
 	}
 
 	s.URL = *u
