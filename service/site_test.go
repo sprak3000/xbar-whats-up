@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"io/fs"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,12 @@ import (
 )
 
 func TestUnit_GetOverview(t *testing.T) {
+	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
+	require.NoError(t, err)
+
+	circleciURL, err := url.Parse("https://status.circleci.com/api/v2/status.json")
+	require.NoError(t, err)
+
 	tests := map[string]struct {
 		sites            Sites
 		finder           client.ServiceFinder
@@ -25,12 +32,12 @@ func TestUnit_GetOverview(t *testing.T) {
 		"base path- highest severity is major": {
 			sites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 				"CircleCI": {
-					URL:  "https://status.circleci.com",
-					Slug: "/api/v2/status.json",
+					URL:  *circleciURL,
+					Type: "statuspage.io",
 				},
 			},
 			reader: clientReaderSeverityMajor{},
@@ -73,12 +80,12 @@ func TestUnit_GetOverview(t *testing.T) {
 		"base path- highest severity is minor": {
 			sites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 				"CircleCI": {
-					URL:  "https://status.circleci.com",
-					Slug: "/api/v2/status.json",
+					URL:  *circleciURL,
+					Type: "statuspage.io",
 				},
 			},
 			reader: clientReaderSeverityMinor{},
@@ -121,12 +128,12 @@ func TestUnit_GetOverview(t *testing.T) {
 		"base path- has error fetching a service status": {
 			sites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 				"CircleCI": {
-					URL:  "https://status.circleci.com",
-					Slug: "/api/v2/status.json",
+					URL:  *circleciURL,
+					Type: "statuspage.io",
 				},
 			},
 			reader: clientReaderHasError{},
@@ -248,6 +255,9 @@ func (crhe clientReaderHasError) ReadStatus(_ client.ServiceFinder, serviceName,
 }
 
 func TestUnit_LoadSites(t *testing.T) {
+	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
+	require.NoError(t, err)
+
 	tests := map[string]struct {
 		reader        configuration.Reader
 		writer        configuration.Writer
@@ -261,8 +271,8 @@ func TestUnit_LoadSites(t *testing.T) {
 			filename: "test-config.json",
 			expectedSites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 			},
 			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {
@@ -310,7 +320,7 @@ type fileReaderWithFilename struct {
 }
 
 func (fr fileReaderWithFilename) ReadFile(_ string) ([]byte, error) {
-	return []byte(`{"CodeClimate":{"url":"https://status.codeclimate.com","slug":"/api/v2/status.json"}}`), nil
+	return []byte(`{"CodeClimate":{"url":"https://status.codeclimate.com/api/v2/status.json","type":"statuspage.io"}}`), nil
 }
 
 type fileReaderReturnsInvalidContents struct {

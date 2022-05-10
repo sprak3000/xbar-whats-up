@@ -1,26 +1,26 @@
 {
   "CircleCI": {
-    "url": "https://status.circleci.com",
-    "slug": "/api/v2/status.json"
+    "url": "https://status.circleci.com/api/v2/status.json",
+    "type": "statuspage.io"
   },
   "CodeClimate": {
-    "url": "https://status.codeclimate.com",
-    "slug": "/api/v2/status.json"
+    "url": "https://status.codeclimate.com/api/v2/status.json",
+    "type": "statuspage.io"
   },
   "DataDog": {
-    "url": "https://status.datadoghq.com",
-    "slug": "/api/v2/status.json"
+    "url": "https://status.datadoghq.com/api/v2/status.json",
+    "type": "statuspage.io"
   },
   "GitHub": {
-    "url": "https://www.githubstatus.com",
-    "slug": "/api/v2/status.json"
+    "url": "https://www.githubstatus.com/api/v2/status.json",
+    "type": "statuspage.io"
   },
   "Reddit": {
-    "url": "https://www.redditstatus.com",
-    "slug": "/api/v2/status.json"
+    "url": "https://www.redditstatus.com/api/v2/status.json",
+    "type": "statuspage.io"
   },
   "Sentry": {
-    "url": "https://status.sentry.io",
-    "slug": "/api/v2/status.json"
+    "url": "https://status.sentry.io/api/v2/status.json",
+    "type": "statuspage.io"
   }
 }

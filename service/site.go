@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"net/url"
 
 	"github.com/sprak3000/go-client/client"
 	"github.com/sprak3000/go-glitch/glitch"
@@ -18,23 +19,49 @@ const (
 
 // Site holds the data for service status pages
 type Site struct {
-	URL  string `json:"url"`
-	Slug string `json:"slug"`
+	URL  url.URL `json:"url,string"`
+	Type string  `json:"type"`
+}
+
+// UnmarshalJSON handles converting data into the Site type
+func (s *Site) UnmarshalJSON(data []byte) error {
+	type tmpSite Site
+
+	tmp := struct {
+		URL string `json:"url"`
+		*tmpSite
+	}{
+		tmpSite: (*tmpSite)(s),
+	}
+
+	err := json.Unmarshal(data, &tmp)
+	if err != nil {
+		return err
+	}
+
+	u, pErr := url.Parse(tmp.URL)
+	if pErr != nil {
+		return err
+	}
+
+	s.URL = *u
+
+	return nil
 }
 
 // Sites is a mapping of services to their status page data
 type Sites map[string]Site
 
 // GetOverview returns the details about the services monitored
-func (s Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader) status.Overview {
+func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader) status.Overview {
 	overview := status.Overview{
 		OverallStatus: "🟢",
 		List:          map[string][]statuspageio.Response{},
 		Errors:        []string{},
 	}
 
-	for k, v := range s {
-		resp, rErr := reader.ReadStatus(serviceFinder, k, v.Slug)
+	for k, v := range sites {
+		resp, rErr := reader.ReadStatus(serviceFinder, k, v.URL.Path)
 		if rErr != nil {
 			overview.Errors = append(overview.Errors, rErr.Error())
 			continue

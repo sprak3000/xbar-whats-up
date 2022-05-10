@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"time"
@@ -48,7 +49,11 @@ func (cr ClientReader) ReadStatus(serviceFinder client.ServiceFinder, serviceNam
 // NewClientServiceFinder returns a client.ServiceFinder suitable for use with go-client
 func NewClientServiceFinder(sites Sites) client.ServiceFinder {
 	return func(serviceName string, useTLS bool) (url.URL, error) {
-		u, err := url.Parse(sites[serviceName].URL)
-		return *u, err
+		u, ok := sites[serviceName]
+		if !ok {
+			return url.URL{}, errors.New("unable to find " + serviceName + " in the service list")
+		}
+
+		return u.URL, nil
 	}
 }
