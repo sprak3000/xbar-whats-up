@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"time"
 
 	"github.com/sprak3000/go-client/client"
 	"github.com/sprak3000/go-glitch/glitch"
+	"github.com/sprak3000/whats-up/configuration"
 	"github.com/sprak3000/whats-up/status"
 	"github.com/sprak3000/whats-up/statuspageio"
 )
@@ -39,7 +39,7 @@ func (s Sites) GetOverview() status.Overview {
 	overview := status.Overview{
 		OverallStatus: "🟢",
 		List:          map[string][]statuspageio.Response{},
-		Errors:        []string{"test error"},
+		Errors:        []string{},
 	}
 
 	resp := statuspageio.Response{}
@@ -74,18 +74,18 @@ func (s Sites) GetOverview() status.Overview {
 }
 
 // LoadSites reads a JSON file containing a list of sites to monitor
-func LoadSites(filename string) (Sites, glitch.DataError) {
+func LoadSites(r configuration.Reader, w configuration.Writer, filename string) (Sites, glitch.DataError) {
 	var sites Sites
 
 	if filename == "" {
-		filename = ".whats-up.json"
+		filename = "./.whats-up.json"
 	}
 
-	config, rErr := ioutil.ReadFile(filename)
+	config, rErr := r.ReadFile(filename)
 	if rErr != nil {
 		// Create an empty configuration file
 		config = []byte("{\n}")
-		wErr := ioutil.WriteFile("./"+filename, config, 0644)
+		wErr := w.WriteFile(filename, config, 0644)
 		if wErr != nil {
 			return sites, glitch.NewDataError(wErr, ErrorUnableToWriteDefaultConfiguration, "unable to create default What's Up configuration")
 		}

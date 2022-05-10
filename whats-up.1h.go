@@ -11,11 +11,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sprak3000/whats-up/configuration"
 	"github.com/sprak3000/whats-up/service"
 )
 
 func main() {
-	sites, lErr := service.LoadSites("./.whats-up.json")
+	sites, lErr := service.LoadSites(configuration.FileReader{}, configuration.FileWriter{}, "./.whats-up.json")
 	if lErr != nil {
 		fmt.Println("What's Up Error")
 		fmt.Println("---")
