@@ -5,27 +5,26 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: analyze
-#analyze: lint vet test ## Run lint, vet, and test
-analyze: lint vet ## Run lint and vet
+analyze: lint vet test ## Run lint, vet, and test
 
 .PHONY: lint
 lint: ## Lint the code
 	# revive returns an exit code of 1 if no issues found. Strike that; reverse it.
 	@! revive -config .revive.toml ./... | grep -v vendor
 
-#.PHONY: test
-#test: unit-test ## Run the test suite(s).
-#
-#.PHONY: unit-test
-#unit-test: ## Run the unit tests.
-#	@gotestsum --format=standard-verbose -- -run '(?i)unit' ./...
-#
-#.PHONY: test-with-coverage
-#test-with-coverage: unit-test-with-coverage ## Run the test suite(s) and output test coverage data.
-#
-#.PHONY: unit-test-with-coverage
-#unit-test-with-coverage: ## Run the unit tests.
-#	@gotestsum --format=standard-verbose -- -run '(?i)unit' ./... -coverprofile=c.out
+.PHONY: test
+test: unit-test ## Run the test suite(s).
+
+.PHONY: unit-test
+unit-test: ## Run the unit tests.
+	@gotestsum --format=standard-verbose -- -run '(?i)unit' ./...
+
+.PHONY: test-with-coverage
+test-with-coverage: unit-test-with-coverage ## Run the test suite(s) and output test coverage data.
+
+.PHONY: unit-test-with-coverage
+unit-test-with-coverage: ## Run the unit tests.
+	@gotestsum --format=standard-verbose -- -run '(?i)unit' ./... -coverprofile=c.out
 
 .PHONY: vet
 vet: ## Verify `go vet` passes.
