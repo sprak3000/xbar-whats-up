@@ -1,8 +1,10 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +16,52 @@ import (
 	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
+func TestUnit_Site_UnmarshalJSON(t *testing.T) {
+	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
+	require.NoError(t, err)
+
+	tests := map[string]struct {
+		siteJSON     []byte
+		expectedSite Site
+		expectedErr  error
+		validate     func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error)
+	}{
+		"base path": {
+			siteJSON: []byte(`{"url":"https://status.codeclimate.com/api/v2/status.json","type":"statuspage.io"}`),
+			expectedSite: Site{
+				URL:  *codeClimateURL,
+				Type: "statuspage.io",
+			},
+			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
+				require.NoError(t, actualErr)
+				require.Equal(t, expectedSite, actualSite)
+			},
+		},
+		"exceptional path- parse URL error": {
+			siteJSON:    []byte(`{"url":":","type":"statuspage.io"}`),
+			expectedErr: errors.New(`parse ":": missing protocol scheme`),
+			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
+				require.Error(t, actualErr)
+				require.Equal(t, expectedErr.Error(), actualErr.Error())
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var s Site
+			err := json.Unmarshal(tc.siteJSON, &s)
+			tc.validate(t, tc.expectedSite, s, tc.expectedErr, err)
+		})
+	}
+}
+
 func TestUnit_GetOverview(t *testing.T) {
+	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
+	require.NoError(t, err)
+
+	circleciURL, err := url.Parse("https://status.circleci.com/api/v2/status.json")
+	require.NoError(t, err)
+
 	tests := map[string]struct {
 		sites            Sites
 		finder           client.ServiceFinder
@@ -25,12 +72,12 @@ func TestUnit_GetOverview(t *testing.T) {
 		"base path- highest severity is major": {
 			sites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 				"CircleCI": {
-					URL:  "https://status.circleci.com",
-					Slug: "/api/v2/status.json",
+					URL:  *circleciURL,
+					Type: "statuspage.io",
 				},
 			},
 			reader: clientReaderSeverityMajor{},
@@ -73,12 +120,12 @@ func TestUnit_GetOverview(t *testing.T) {
 		"base path- highest severity is minor": {
 			sites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 				"CircleCI": {
-					URL:  "https://status.circleci.com",
-					Slug: "/api/v2/status.json",
+					URL:  *circleciURL,
+					Type: "statuspage.io",
 				},
 			},
 			reader: clientReaderSeverityMinor{},
@@ -121,12 +168,12 @@ func TestUnit_GetOverview(t *testing.T) {
 		"base path- has error fetching a service status": {
 			sites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 				"CircleCI": {
-					URL:  "https://status.circleci.com",
-					Slug: "/api/v2/status.json",
+					URL:  *circleciURL,
+					Type: "statuspage.io",
 				},
 			},
 			reader: clientReaderHasError{},
@@ -248,6 +295,9 @@ func (crhe clientReaderHasError) ReadStatus(_ client.ServiceFinder, serviceName,
 }
 
 func TestUnit_LoadSites(t *testing.T) {
+	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
+	require.NoError(t, err)
+
 	tests := map[string]struct {
 		reader        configuration.Reader
 		writer        configuration.Writer
@@ -261,8 +311,8 @@ func TestUnit_LoadSites(t *testing.T) {
 			filename: "test-config.json",
 			expectedSites: Sites{
 				"CodeClimate": {
-					URL:  "https://status.codeclimate.com",
-					Slug: "/api/v2/status.json",
+					URL:  *codeClimateURL,
+					Type: "statuspage.io",
 				},
 			},
 			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {
@@ -310,7 +360,7 @@ type fileReaderWithFilename struct {
 }
 
 func (fr fileReaderWithFilename) ReadFile(_ string) ([]byte, error) {
-	return []byte(`{"CodeClimate":{"url":"https://status.codeclimate.com","slug":"/api/v2/status.json"}}`), nil
+	return []byte(`{"CodeClimate":{"url":"https://status.codeclimate.com/api/v2/status.json","type":"statuspage.io"}}`), nil
 }
 
 type fileReaderReturnsInvalidContents struct {

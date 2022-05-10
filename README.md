@@ -25,8 +25,8 @@ entry in the configuration file like this:
 
 ```json
   "CodeClimate": {
-    "url": "https://status.codeclimate.com",
-    "slug": "/api/v2/status.json"
+    "url": "https://status.codeclimate.com/api/v2/status.json",
+    "type": "statuspage.io"
   }
 ```
 
