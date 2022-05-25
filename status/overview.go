@@ -19,7 +19,14 @@ type Overview struct {
 
 // Display outputs the data in the xbar format
 func (o Overview) Display() {
-	fmt.Println(o.OverallStatus)
+	switch o.OverallStatus {
+	case "major":
+		fmt.Println("🔴")
+	case "minor":
+		fmt.Println("🟠")
+	default:
+		fmt.Println("🟢")
+	}
 
 	fmt.Println("---")
 	if len(o.List["major"]) > 0 {

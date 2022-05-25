@@ -55,7 +55,7 @@ type Sites map[string]Site
 // GetOverview returns the details about the services monitored
 func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader) status.Overview {
 	overview := status.Overview{
-		OverallStatus: "🟢",
+		OverallStatus: "none",
 		List:          map[string][]statuspageio.Response{},
 		Errors:        []string{},
 	}
@@ -69,10 +69,12 @@ func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader
 
 		switch resp.Status.Indicator {
 		case "major":
-			overview.OverallStatus = "🔴"
+			overview.OverallStatus = "major"
 			overview.List["major"] = append(overview.List["major"], resp)
 		case "minor":
-			overview.OverallStatus = "🟠"
+			if overview.OverallStatus != "major" {
+				overview.OverallStatus = "minor"
+			}
 			overview.List["minor"] = append(overview.List["minor"], resp)
 		default:
 			overview.List["none"] = append(overview.List["none"], resp)
