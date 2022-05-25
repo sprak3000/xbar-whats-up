@@ -82,7 +82,7 @@ func TestUnit_GetOverview(t *testing.T) {
 			},
 			reader: clientReaderSeverityMajor{},
 			expectedOverview: status.Overview{
-				OverallStatus: "🔴",
+				OverallStatus: "major",
 				List: map[string][]statuspageio.Response{
 					"major": {
 						{
@@ -97,7 +97,7 @@ func TestUnit_GetOverview(t *testing.T) {
 							},
 						},
 					},
-					"none": {
+					"minor": {
 						{
 							Page: statuspageio.Page{
 								ID:   "code-climate",
@@ -105,8 +105,8 @@ func TestUnit_GetOverview(t *testing.T) {
 								URL:  "https://status.codeclimate.com/api/v2/status.json",
 							},
 							Status: statuspageio.Status{
-								Indicator:   "none",
-								Description: "none",
+								Indicator:   "minor",
+								Description: "minor outage",
 							},
 						},
 					},
@@ -130,7 +130,7 @@ func TestUnit_GetOverview(t *testing.T) {
 			},
 			reader: clientReaderSeverityMinor{},
 			expectedOverview: status.Overview{
-				OverallStatus: "🟠",
+				OverallStatus: "minor",
 				List: map[string][]statuspageio.Response{
 					"minor": {
 						{
@@ -178,7 +178,7 @@ func TestUnit_GetOverview(t *testing.T) {
 			},
 			reader: clientReaderHasError{},
 			expectedOverview: status.Overview{
-				OverallStatus: "🟢",
+				OverallStatus: "none",
 				List: map[string][]statuspageio.Response{
 					"none": {
 						{
@@ -236,8 +236,8 @@ func (crsMajor clientReaderSeverityMajor) ReadStatus(_ client.ServiceFinder, ser
 			URL:  "https://status.codeclimate.com/api/v2/status.json",
 		},
 		Status: statuspageio.Status{
-			Indicator:   "none",
-			Description: "none",
+			Indicator:   "minor",
+			Description: "minor outage",
 		},
 	}, nil
 }
