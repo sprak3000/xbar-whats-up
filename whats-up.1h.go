@@ -5,6 +5,7 @@
 // <xbar.desc>Tracks if services are reporting any outages.</xbar.desc>
 // <xbar.dependencies>golang</xbar.dependencies>
 
+// Package main is the entry point for running the plugin
 package main
 
 import (

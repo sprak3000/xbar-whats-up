@@ -1,3 +1,4 @@
+// Package service handles communicating with sites to obtain their current status details
 package service
 
 import (

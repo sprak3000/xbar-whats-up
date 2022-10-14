@@ -1,3 +1,4 @@
+// Package service handles communicating with sites to obtain their current status details
 package service
 
 import (
@@ -8,7 +9,6 @@ import (
 	"github.com/sprak3000/go-glitch/glitch"
 	"github.com/sprak3000/xbar-whats-up/configuration"
 	"github.com/sprak3000/xbar-whats-up/status"
-	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
 // Error codes
@@ -56,7 +56,7 @@ type Sites map[string]Site
 func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader) status.Overview {
 	overview := status.Overview{
 		OverallStatus: "none",
-		List:          map[string][]statuspageio.Response{},
+		List:          map[string][]status.Details{},
 		Errors:        []string{},
 	}
 
@@ -67,7 +67,7 @@ func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader
 			continue
 		}
 
-		switch resp.Status.Indicator {
+		switch resp.Indicator() {
 		case "major":
 			overview.OverallStatus = "major"
 			overview.List["major"] = append(overview.List["major"], resp)

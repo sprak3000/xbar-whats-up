@@ -1,6 +1,9 @@
+// Package statuspageio handles communicating with status pages following the statuspage.io format
 package statuspageio
 
-import "time"
+import (
+	"time"
+)
 
 // Page represents the page information
 type Page struct {
@@ -21,4 +24,24 @@ type Status struct {
 type Response struct {
 	Page   Page   `json:"page"`
 	Status Status `json:"status"`
+}
+
+// Indicator returns the current status for the service
+func (r Response) Indicator() string {
+	return r.Status.Indicator
+}
+
+// Name returns the name of the service
+func (r Response) Name() string {
+	return r.Page.Name
+}
+
+// UpdatedAt returns the date / time of the most recent status update for the service
+func (r Response) UpdatedAt() time.Time {
+	return r.Page.UpdatedAt
+}
+
+// URL returns the page the service hosts to display more details about current and past status updates
+func (r Response) URL() string {
+	return r.Page.URL
 }
