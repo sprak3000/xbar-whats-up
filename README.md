@@ -1,6 +1,6 @@
 # xbar Plugin: What's Up?
 
-![Code Quality & Tests](https://github.com/sprak3000/xbar-whats-up/actions/workflows/quality-and-tests.yml/badge.svg)
+[![Code Quality & Tests](https://github.com/sprak3000/xbar-whats-up/actions/workflows/quality-and-tests.yml/badge.svg)](https://github.com/sprak3000/xbar-whats-up/actions/workflows/quality-and-tests.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2ab2a7aea58a269d2447/maintainability)](https://codeclimate.com/github/sprak3000/xbar-whats-up/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2ab2a7aea58a269d2447/test_coverage)](https://codeclimate.com/github/sprak3000/xbar-whats-up/test_coverage)
 
