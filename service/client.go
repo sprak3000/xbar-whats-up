@@ -41,7 +41,7 @@ func (cr ClientReader) ReadStatus(serviceFinder client.ServiceFinder, serviceNam
 
 	uErr := json.Unmarshal(respBytes, &resp)
 	if uErr != nil {
-		return resp, glitch.NewDataError(err, ErrorUnableToParseClientResponse, fmt.Sprintf("unable to parse client response for %s: %v", serviceName, err))
+		return resp, glitch.NewDataError(uErr, ErrorUnableToParseClientResponse, fmt.Sprintf("unable to parse client response for %s: %v", serviceName, uErr))
 	}
 
 	return resp, nil
