@@ -1,3 +1,4 @@
+// Package configuration handles reading and writing the configuration file for the plugin
 package configuration
 
 import "io/ioutil"

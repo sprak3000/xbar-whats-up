@@ -83,9 +83,9 @@ func TestUnit_GetOverview(t *testing.T) {
 			reader: clientReaderSeverityMajor{},
 			expectedOverview: status.Overview{
 				OverallStatus: "major",
-				List: map[string][]statuspageio.Response{
+				List: map[string][]status.Details{
 					"major": {
-						{
+						statuspageio.Response{
 							Page: statuspageio.Page{
 								ID:   "circle-ci",
 								Name: "CircleCI",
@@ -98,7 +98,7 @@ func TestUnit_GetOverview(t *testing.T) {
 						},
 					},
 					"minor": {
-						{
+						statuspageio.Response{
 							Page: statuspageio.Page{
 								ID:   "code-climate",
 								Name: "CodeClimate",
@@ -131,9 +131,9 @@ func TestUnit_GetOverview(t *testing.T) {
 			reader: clientReaderSeverityMinor{},
 			expectedOverview: status.Overview{
 				OverallStatus: "minor",
-				List: map[string][]statuspageio.Response{
+				List: map[string][]status.Details{
 					"minor": {
-						{
+						statuspageio.Response{
 							Page: statuspageio.Page{
 								ID:   "circle-ci",
 								Name: "CircleCI",
@@ -146,7 +146,7 @@ func TestUnit_GetOverview(t *testing.T) {
 						},
 					},
 					"none": {
-						{
+						statuspageio.Response{
 							Page: statuspageio.Page{
 								ID:   "code-climate",
 								Name: "CodeClimate",
@@ -179,9 +179,9 @@ func TestUnit_GetOverview(t *testing.T) {
 			reader: clientReaderHasError{},
 			expectedOverview: status.Overview{
 				OverallStatus: "none",
-				List: map[string][]statuspageio.Response{
+				List: map[string][]status.Details{
 					"none": {
-						{
+						statuspageio.Response{
 							Page: statuspageio.Page{
 								ID:   "code-climate",
 								Name: "CodeClimate",

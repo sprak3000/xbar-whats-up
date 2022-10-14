@@ -9,7 +9,6 @@ analyze: lint vet test ## Run lint, vet, and test
 
 .PHONY: lint
 lint: ## Lint the code
-	# revive returns an exit code of 1 if no issues found. Strike that; reverse it.
 	@! revive -config .revive.toml ./... | grep -v vendor
 
 .PHONY: test
@@ -56,12 +55,12 @@ setup-asdf: ## Install Go via asdf
 .PHONY: install-goimports
 install-goimports: ## Install goimports
 	@echo ">>>> Installing goimports"
-	@go get golang.org/x/tools/cmd/goimports
+	@go install golang.org/x/tools/cmd/goimports@latest
 
 .PHONY: install-gotestsum
 install-gotestsum: ## Install gotestsum
 	@echo ">>>> Installing gotestsum"
-	@go get gotest.tools/gotestsum
+	@go install gotest.tools/gotestsum@latest
 
 .PHONY: asdf-reshim
 asdf-reshim: ## Reshim asdf
