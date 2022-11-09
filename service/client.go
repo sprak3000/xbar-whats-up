@@ -7,6 +7,7 @@ import (
 
 	"github.com/sprak3000/go-client/client"
 	"github.com/sprak3000/go-glitch/glitch"
+	"github.com/sprak3000/xbar-whats-up/slack"
 	"github.com/sprak3000/xbar-whats-up/status"
 	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
@@ -25,6 +26,8 @@ func NewReaderServiceFinder() ReaderServiceFinder {
 		switch serviceType {
 		case statuspageio.ServiceType:
 			return statuspageio.ClientReader{}, nil
+		case slack.ServiceType:
+			return slack.ClientReader{}, nil
 		default:
 			return nil, errors.New("reader not implemented for type " + serviceType)
 		}
