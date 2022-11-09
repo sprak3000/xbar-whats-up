@@ -10,6 +10,7 @@ This is a plugin for [xbar](https://github.com/matryer/xbar) to quickly show in 
 services you depend on. It currently understands the following formats:
 
 - statuspage.io JSON responses (Example: [reddit Status](https://www.redditstatus.com/api/v2/status.json))
+- [Slack API 2.0 JSON responses](https://api.slack.com/docs/slack-status#v2_0_0__current-status-api)
 
 ## Requirements
 
@@ -21,13 +22,17 @@ services you depend on. It currently understands the following formats:
 make create-config
 ```
 
-Using CodeClimate's status page (`https://status.codeclimate.com/api/v2/status.json`) as an example, we would create an
+Using CodeClimate's status page (`https://status.codeclimate.com/api/v2/status.json`) and Slack's as examples, we would create an
 entry in the configuration file like this:
 
 ```json
   "CodeClimate": {
     "url": "https://status.codeclimate.com/api/v2/status.json",
     "type": "statuspage.io"
+  },
+  "Slack": {
+    "url": "https://status.slack.com/api/v2.0.0/current",
+    "type": "slack"
   }
 ```
 

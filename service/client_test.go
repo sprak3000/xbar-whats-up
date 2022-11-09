@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/sprak3000/xbar-whats-up/slack"
 	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
@@ -80,6 +81,14 @@ func TestUnit_NewReaderServiceFinder(t *testing.T) {
 		"base path- statuspage.io": {
 			serviceType:    statuspageio.ServiceType,
 			expectedReader: statuspageio.ClientReader{},
+			validate: func(t *testing.T, expectedReader, actualReader Reader, expectedErr, actualErr error) {
+				require.NoError(t, actualErr)
+				require.Equal(t, expectedReader, actualReader)
+			},
+		},
+		"base path- slack": {
+			serviceType:    slack.ServiceType,
+			expectedReader: slack.ClientReader{},
 			validate: func(t *testing.T, expectedReader, actualReader Reader, expectedErr, actualErr error) {
 				require.NoError(t, actualErr)
 				require.Equal(t, expectedReader, actualReader)
