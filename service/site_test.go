@@ -30,7 +30,7 @@ func TestUnit_Site_UnmarshalJSON(t *testing.T) {
 			siteJSON: []byte(`{"url":"https://status.codeclimate.com/api/v2/status.json","type":"statuspage.io"}`),
 			expectedSite: Site{
 				URL:  *codeClimateURL,
-				Type: "statuspage.io",
+				Type: statuspageio.ServiceType,
 			},
 			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
 				require.NoError(t, actualErr)
@@ -64,8 +64,8 @@ func TestUnit_GetOverview(t *testing.T) {
 
 	tests := map[string]struct {
 		sites            Sites
-		finder           client.ServiceFinder
-		reader           Reader
+		serviceFinder    client.ServiceFinder
+		readerFinder     ReaderServiceFinder
 		expectedOverview status.Overview
 		validate         func(t *testing.T, expectedOverview, actualOverview status.Overview)
 	}{
@@ -73,14 +73,16 @@ func TestUnit_GetOverview(t *testing.T) {
 			sites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 				"CircleCI": {
 					URL:  *circleciURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 			},
-			reader: clientReaderSeverityMajor{},
+			readerFinder: func(serviceName string) (Reader, error) {
+				return clientReaderSeverityMajor{}, nil
+			},
 			expectedOverview: status.Overview{
 				OverallStatus: "major",
 				List: map[string][]status.Details{
@@ -121,14 +123,16 @@ func TestUnit_GetOverview(t *testing.T) {
 			sites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 				"CircleCI": {
 					URL:  *circleciURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 			},
-			reader: clientReaderSeverityMinor{},
+			readerFinder: func(serviceName string) (Reader, error) {
+				return clientReaderSeverityMinor{}, nil
+			},
 			expectedOverview: status.Overview{
 				OverallStatus: "minor",
 				List: map[string][]status.Details{
@@ -169,14 +173,16 @@ func TestUnit_GetOverview(t *testing.T) {
 			sites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 				"CircleCI": {
 					URL:  *circleciURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 			},
-			reader: clientReaderHasError{},
+			readerFinder: func(serviceName string) (Reader, error) {
+				return clientReaderHasError{}, nil
+			},
 			expectedOverview: status.Overview{
 				OverallStatus: "none",
 				List: map[string][]status.Details{
@@ -202,10 +208,36 @@ func TestUnit_GetOverview(t *testing.T) {
 				require.Equal(t, expectedOverview, actualOverview)
 			},
 		},
+		"base path- service not supported": {
+			sites: Sites{
+				"CodeClimate": {
+					URL:  *codeClimateURL,
+					Type: statuspageio.ServiceType,
+				},
+				"CircleCI": {
+					URL:  *circleciURL,
+					Type: statuspageio.ServiceType,
+				},
+			},
+			readerFinder: func(serviceName string) (Reader, error) {
+				return nil, errors.New("not supported")
+			},
+			expectedOverview: status.Overview{
+				OverallStatus: "none",
+				List:          map[string][]status.Details{},
+				Errors: []string{
+					"CodeClimate uses an unsupported service type statuspage.io",
+					"CircleCI uses an unsupported service type statuspage.io",
+				},
+			},
+			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
+				require.Equal(t, expectedOverview, actualOverview)
+			},
+		},
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			o := tc.sites.GetOverview(tc.finder, tc.reader)
+			o := tc.sites.GetOverview(tc.serviceFinder, tc.readerFinder)
 			tc.validate(t, tc.expectedOverview, o)
 		})
 	}
@@ -214,7 +246,7 @@ func TestUnit_GetOverview(t *testing.T) {
 type clientReaderSeverityMajor struct {
 }
 
-func (crsMajor clientReaderSeverityMajor) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (statuspageio.Response, glitch.DataError) {
+func (crsMajor clientReaderSeverityMajor) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (status.Details, glitch.DataError) {
 	if serviceName == "CircleCI" {
 		return statuspageio.Response{
 			Page: statuspageio.Page{
@@ -245,7 +277,7 @@ func (crsMajor clientReaderSeverityMajor) ReadStatus(_ client.ServiceFinder, ser
 type clientReaderSeverityMinor struct {
 }
 
-func (crsMinor clientReaderSeverityMinor) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (statuspageio.Response, glitch.DataError) {
+func (crsMinor clientReaderSeverityMinor) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (status.Details, glitch.DataError) {
 	if serviceName == "CircleCI" {
 		return statuspageio.Response{
 			Page: statuspageio.Page{
@@ -276,9 +308,9 @@ func (crsMinor clientReaderSeverityMinor) ReadStatus(_ client.ServiceFinder, ser
 type clientReaderHasError struct {
 }
 
-func (crhe clientReaderHasError) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (statuspageio.Response, glitch.DataError) {
+func (crhe clientReaderHasError) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (status.Details, glitch.DataError) {
 	if serviceName == "CircleCI" {
-		return statuspageio.Response{}, glitch.NewDataError(nil, ErrorUnableToMakeClientRequest, "test err")
+		return statuspageio.Response{}, glitch.NewDataError(nil, status.ErrorUnableToMakeClientRequest, "test err")
 	}
 
 	return statuspageio.Response{
@@ -312,7 +344,7 @@ func TestUnit_LoadSites(t *testing.T) {
 			expectedSites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 			},
 			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {

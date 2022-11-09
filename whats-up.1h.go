@@ -1,5 +1,5 @@
 // <xbar.title>What's Up?</xbar.title>
-// <xbar.version>v1.0</xbar.version>
+// <xbar.version>v0.11.0</xbar.version>
 // <xbar.author>Luis A. Cruz</xbar.author>
 // <xbar.author.github>sprak3000</xbar.author.github>
 // <xbar.desc>Tracks if services are reporting any outages.</xbar.desc>
@@ -25,5 +25,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	sites.GetOverview(service.NewClientServiceFinder(sites), service.ClientReader{}).Display()
+	sites.GetOverview(service.NewClientServiceFinder(sites), service.NewReaderServiceFinder()).Display()
 }

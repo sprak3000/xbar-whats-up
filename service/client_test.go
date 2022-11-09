@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
 func TestUnit_NewClientServiceFinder(t *testing.T) {
@@ -26,11 +28,11 @@ func TestUnit_NewClientServiceFinder(t *testing.T) {
 			sites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 				"CircleCI": {
 					URL:  *circleciURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 			},
 			serviceName: "CodeClimate",
@@ -44,11 +46,11 @@ func TestUnit_NewClientServiceFinder(t *testing.T) {
 			sites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 				"CircleCI": {
 					URL:  *circleciURL,
-					Type: "statuspage.io",
+					Type: statuspageio.ServiceType,
 				},
 			},
 			serviceName: "GitHub",
@@ -64,6 +66,39 @@ func TestUnit_NewClientServiceFinder(t *testing.T) {
 			f := NewClientServiceFinder(tc.sites)
 			u, err := f(tc.serviceName, true)
 			tc.validate(t, tc.expectedURL, u, tc.expectedErr, err)
+		})
+	}
+}
+
+func TestUnit_NewReaderServiceFinder(t *testing.T) {
+	tests := map[string]struct {
+		serviceType    string
+		expectedReader Reader
+		expectedErr    error
+		validate       func(t *testing.T, expectedReader, actualReader Reader, expectedErr, actualErr error)
+	}{
+		"base path- statuspage.io": {
+			serviceType:    statuspageio.ServiceType,
+			expectedReader: statuspageio.ClientReader{},
+			validate: func(t *testing.T, expectedReader, actualReader Reader, expectedErr, actualErr error) {
+				require.NoError(t, actualErr)
+				require.Equal(t, expectedReader, actualReader)
+			},
+		},
+		"exceptional path- unsupported service type": {
+			serviceType: "not-a-finger",
+			expectedErr: errors.New("reader not implemented for type not-a-finger"),
+			validate: func(t *testing.T, expectedReader, actualReader Reader, expectedErr, actualErr error) {
+				require.Error(t, actualErr)
+				require.Equal(t, expectedErr, actualErr)
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			f := NewReaderServiceFinder()
+			r, fErr := f(tc.serviceType)
+			tc.validate(t, tc.expectedReader, r, tc.expectedErr, fErr)
 		})
 	}
 }
