@@ -214,10 +214,6 @@ func TestUnit_GetOverview(t *testing.T) {
 					URL:  *codeClimateURL,
 					Type: statuspageio.ServiceType,
 				},
-				"CircleCI": {
-					URL:  *circleciURL,
-					Type: statuspageio.ServiceType,
-				},
 			},
 			readerFinder: func(serviceName string) (Reader, error) {
 				return nil, errors.New("not supported")
@@ -227,7 +223,6 @@ func TestUnit_GetOverview(t *testing.T) {
 				List:          map[string][]status.Details{},
 				Errors: []string{
 					"CodeClimate uses an unsupported service type statuspage.io",
-					"CircleCI uses an unsupported service type statuspage.io",
 				},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
