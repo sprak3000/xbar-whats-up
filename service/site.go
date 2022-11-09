@@ -53,7 +53,7 @@ func (s *Site) UnmarshalJSON(data []byte) error {
 type Sites map[string]Site
 
 // GetOverview returns the details about the services monitored
-func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader) status.Overview {
+func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, readerFinder ReaderServiceFinder) status.Overview {
 	overview := status.Overview{
 		OverallStatus: "none",
 		List:          map[string][]status.Details{},
@@ -61,6 +61,13 @@ func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, reader Reader
 	}
 
 	for k, v := range sites {
+		reader, rfErr := readerFinder(v.Type)
+		if rfErr != nil {
+			overview.Errors = append(overview.Errors, k+" uses an unsupported service type "+v.Type)
+			// Unsupported at this time
+			continue
+		}
+
 		resp, rErr := reader.ReadStatus(serviceFinder, k, v.URL.Path)
 		if rErr != nil {
 			overview.Errors = append(overview.Errors, rErr.Error())
