@@ -14,9 +14,15 @@ import (
 // ServiceType is the name we use for various checks
 const ServiceType = "slack"
 
+// Note represents additional details about an incident
+type Note struct {
+	DateCreated time.Time `json:"date_created"`
+	Body        string    `json:"body"`
+}
+
 // Incident represents a single reported status incident
 type Incident struct {
-	ID          string    `json:"id"`
+	ID          int       `json:"id"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
 	Title       string    `json:"title"`
@@ -24,7 +30,7 @@ type Incident struct {
 	Status      string    `json:"status"`
 	URL         string    `json:"url"`
 	Services    []string  `json:"services"`
-	Notes       []string  `json:"notes"`
+	Notes       []Note    `json:"notes"`
 }
 
 // ClientReader implements the Reader interface for go-client based reading of a service's status
