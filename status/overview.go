@@ -3,6 +3,7 @@ package status
 
 import (
 	"fmt"
+	"io"
 )
 
 // List is a mapping of status codes to services reporting that status code
@@ -17,41 +18,33 @@ type Overview struct {
 }
 
 // Display outputs the data in the xbar format
-func (o Overview) Display() {
+func (o Overview) Display(w io.Writer) {
 	switch o.OverallStatus {
 	case "major":
-		fmt.Println("🔴")
+		_, _ = fmt.Fprintln(w, "🔴")
 	case "minor":
-		fmt.Println("🟠")
+		_, _ = fmt.Fprintln(w, "🟠")
 	default:
-		fmt.Println("🟢")
+		_, _ = fmt.Fprintln(w, "🟢")
 	}
 
-	fmt.Println("---")
-	if len(o.List["major"]) > 0 {
-		for _, v := range o.List["major"] {
-			fmt.Println("\u001B[31;1m" + v.Name() + "\u001b[0m" + "\u001b[30m" + " (" + v.UpdatedAt().Format("2006 Jan 02") + ") | href=" + v.URL())
-		}
-	}
+	displayDetails(w, o.List["major"], "\u001B[31;1m")
+	displayDetails(w, o.List["minor"], "\u001b[38;5;208m")
+	displayDetails(w, o.List["none"], "\u001B[32;1m")
 
-	fmt.Println("---")
-	if len(o.List["minor"]) > 0 {
-		for _, v := range o.List["minor"] {
-			fmt.Println("\u001b[38;5;208m" + v.Name() + "\u001b[0m" + "\u001b[30m" + " (" + v.UpdatedAt().Format("2006 Jan 02") + ") | href=" + v.URL())
-		}
-	}
-
-	fmt.Println("---")
-	if len(o.List["none"]) > 0 {
-		for _, v := range o.List["none"] {
-			fmt.Println("\u001B[32;1m" + v.Name() + "\u001b[0m" + "\u001b[30m" + " (" + v.UpdatedAt().Format("2006 Jan 02") + ") | href=" + v.URL())
-		}
-	}
-
-	fmt.Println("---")
+	_, _ = fmt.Fprintln(w, "---")
 	if len(o.Errors) > 0 {
 		for _, v := range o.Errors {
-			fmt.Println(v)
+			_, _ = fmt.Fprintln(w, v)
+		}
+	}
+}
+
+func displayDetails(w io.Writer, details []Details, detailColor string) {
+	_, _ = fmt.Fprintln(w, "---")
+	if len(details) > 0 {
+		for _, v := range details {
+			_, _ = fmt.Fprintln(w, detailColor+v.Name()+"\u001b[0m"+"\u001b[30m"+" ("+v.UpdatedAt().Format("2006 Jan 02")+") | href="+v.URL())
 		}
 	}
 }
