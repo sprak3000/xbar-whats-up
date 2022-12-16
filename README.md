@@ -60,3 +60,11 @@ cd ~/Library/Application Support/xbar/plugins
 ln -s /path/to/what-up.1h whats-up.1h.cgo
 ln -s /path/to/.whats-up.json .whats-up.json
 ```
+
+## Contributing
+
+You want to contribute to the project? Welcome!
+
+Since this is an open source project, we would love to have your feedback! If you are interested, we would also love to
+have your help! Whether helpful examples to add to the docs, or FAQ entries, everything helps. Read our guide on
+[contributing](docs/contributing.md), then [set up the tooling](docs/development.md) necessary.
