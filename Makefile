@@ -48,7 +48,7 @@ brew-deps: ## Install tools via Homebrew
 .PHONY: setup-asdf
 setup-asdf: ## Install Go via asdf
 	@echo ">>>> Installing asdf plugins"
-	@asdf plugin add golang
+	-@asdf plugin add golang
 	@echo ">>>> Installing Go via asdf"
 	@asdf install
 
