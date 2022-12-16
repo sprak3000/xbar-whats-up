@@ -22,10 +22,11 @@ services you depend on. It currently understands the following formats:
 make create-config
 ```
 
-Using CodeClimate's status page (`https://status.codeclimate.com/api/v2/status.json`) and Slack's as examples, we would create an
-entry in the configuration file like this:
+Using [CodeClimate's status page](https://status.codeclimate.com/api/v2/status.json) and [Slack's](https://status.slack.com/api/v2.0.0/current)
+as examples, we would create an entry in the configuration file like this:
 
 ```json
+{
   "CodeClimate": {
     "url": "https://status.codeclimate.com/api/v2/status.json",
     "type": "statuspage.io"
@@ -34,6 +35,7 @@ entry in the configuration file like this:
     "url": "https://status.slack.com/api/v2.0.0/current",
     "type": "slack"
   }
+}
 ```
 
 ## Usage
@@ -47,14 +49,14 @@ make build
 Move the binary and configuration to your xbar plugins directory.
 
 ```shell
-mv whats-up.1h ~/.xbar/whats-up.1h.cgo
-mv whats-up.json ~/.xbar/whats-up.1h.json
+mv whats-up.1h ~/Library/Application Support/xbar/plugins/whats-up.1h.cgo
+mv whats-up.json ~/Library/Application Support/xbar/plugins/whats-up.1h.json
 ```
 
 Alternatively, create symbolic links.
 
 ```shell
-cd ~/.xbar
+cd ~/Library/Application Support/xbar/plugins
 ln -s /path/to/what-up.1h whats-up.1h.cgo
 ln -s /path/to/.whats-up.json .whats-up.json
 ```
