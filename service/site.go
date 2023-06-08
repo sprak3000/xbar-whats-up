@@ -74,6 +74,11 @@ func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, readerFinder 
 			continue
 		}
 
+		nameSize := len(resp.Name())
+		if nameSize > overview.LargestStringSize {
+			overview.LargestStringSize = nameSize
+		}
+
 		switch resp.Indicator() {
 		case "major":
 			overview.OverallStatus = "major"

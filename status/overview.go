@@ -12,7 +12,8 @@ type List map[string][]Details
 // Overview provides an overall status for all services monitored -- most severe status wins -- along with all the
 // services categorized by status
 type Overview struct {
-	OverallStatus string
+	OverallStatus     string
+	LargestStringSize int
 	List
 	Errors []string
 }
@@ -28,9 +29,9 @@ func (o Overview) Display(w io.Writer) {
 		_, _ = fmt.Fprintln(w, "🟢")
 	}
 
-	displayDetails(w, o.List["major"], "\u001B[31;1m")
-	displayDetails(w, o.List["minor"], "\u001b[38;5;208m")
-	displayDetails(w, o.List["none"], "\u001B[32;1m")
+	displayDetails(w, o.LargestStringSize, o.List["major"], "\u001B[31;1m")
+	displayDetails(w, o.LargestStringSize, o.List["minor"], "\u001b[38;5;208m")
+	displayDetails(w, o.LargestStringSize, o.List["none"], "\u001B[32;1m")
 
 	_, _ = fmt.Fprintln(w, "---")
 	if len(o.Errors) > 0 {
@@ -40,11 +41,11 @@ func (o Overview) Display(w io.Writer) {
 	}
 }
 
-func displayDetails(w io.Writer, details []Details, detailColor string) {
+func displayDetails(w io.Writer, largestStringSize int, details []Details, detailColor string) {
 	_, _ = fmt.Fprintln(w, "---")
 	if len(details) > 0 {
 		for _, v := range details {
-			_, _ = fmt.Fprintln(w, detailColor+v.Name()+"\u001b[0m"+"\u001b[30m"+" ("+v.UpdatedAt().Format("2006 Jan 02")+") | href="+v.URL())
+			_, _ = fmt.Fprintf(w, "%s%-*s%s%s %s | font=Monaco href=%s\n", detailColor, largestStringSize+5, v.Name(), "\u001b[0m", "\u001b[30m", v.UpdatedAt().Format("2006 Jan 02"), v.URL())
 		}
 	}
 }
