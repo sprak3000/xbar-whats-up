@@ -84,7 +84,8 @@ func TestUnit_GetOverview(t *testing.T) {
 				return clientReaderSeverityMajor{}, nil
 			},
 			expectedOverview: status.Overview{
-				OverallStatus: "major",
+				OverallStatus:     "major",
+				LargestStringSize: 11,
 				List: map[string][]status.Details{
 					"major": {
 						statuspageio.Response{
@@ -134,7 +135,8 @@ func TestUnit_GetOverview(t *testing.T) {
 				return clientReaderSeverityMinor{}, nil
 			},
 			expectedOverview: status.Overview{
-				OverallStatus: "minor",
+				OverallStatus:     "minor",
+				LargestStringSize: 11,
 				List: map[string][]status.Details{
 					"minor": {
 						statuspageio.Response{
@@ -184,7 +186,8 @@ func TestUnit_GetOverview(t *testing.T) {
 				return clientReaderHasError{}, nil
 			},
 			expectedOverview: status.Overview{
-				OverallStatus: "none",
+				OverallStatus:     "none",
+				LargestStringSize: 11,
 				List: map[string][]status.Details{
 					"none": {
 						statuspageio.Response{

@@ -20,7 +20,8 @@ func TestUnit_Overview_Display(t *testing.T) {
 		"base path- overall status major": {
 			validate: func(t *testing.T) {
 				o := Overview{
-					OverallStatus: "major",
+					OverallStatus:     "major",
+					LargestStringSize: 12,
 					List: map[string][]Details{
 						"major": {
 							testResponse{
@@ -43,13 +44,14 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🔴\n---\n\x1b[31;1mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\n\x1b[38;5;208mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\n\x1b[32;1mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\n", buf.String())
+				require.Equal(t, "🔴\n---\n\x1b[31;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[38;5;208mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n", buf.String())
 			},
 		},
 		"base path- overall status minor": {
 			validate: func(t *testing.T) {
 				o := Overview{
-					OverallStatus: "minor",
+					OverallStatus:     "minor",
+					LargestStringSize: 12,
 					List: map[string][]Details{
 						"minor": {
 							testResponse{
@@ -67,13 +69,14 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🟠\n---\n---\n\x1b[38;5;208mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\n\x1b[32;1mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\n", buf.String())
+				require.Equal(t, "🟠\n---\n---\n\x1b[38;5;208mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n", buf.String())
 			},
 		},
 		"base path- overall status none": {
 			validate: func(t *testing.T) {
 				o := Overview{
-					OverallStatus: "none",
+					OverallStatus:     "none",
+					LargestStringSize: 12,
 					List: map[string][]Details{
 						"none": {
 							testResponse{
@@ -86,13 +89,14 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🟢\n---\n---\n---\n\x1b[32;1mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\n", buf.String())
+				require.Equal(t, "🟢\n---\n---\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n", buf.String())
 			},
 		},
 		"base path- has error": {
 			validate: func(t *testing.T) {
 				o := Overview{
-					OverallStatus: "none",
+					OverallStatus:     "none",
+					LargestStringSize: 12,
 					List: map[string][]Details{
 						"none": {
 							testResponse{
@@ -108,7 +112,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🟢\n---\n---\n---\n\x1b[32;1mTest Service\x1b[0m\x1b[30m ("+nowFormatted+") | href=https://test.service/\n---\nSomething went wrong with a test service.\n", buf.String())
+				require.Equal(t, "🟢\n---\n---\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\nSomething went wrong with a test service.\n", buf.String())
 			},
 		},
 	}
