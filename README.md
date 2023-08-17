@@ -49,8 +49,8 @@ make build
 Move the binary and configuration to your xbar plugins directory.
 
 ```shell
-mv whats-up.1h ~/Library/Application Support/xbar/plugins/whats-up.1h.cgo
-mv whats-up.json ~/Library/Application Support/xbar/plugins/whats-up.1h.json
+mv whats-up.1h ~/Library/Application\ Support/xbar/plugins/whats-up.1h.cgo
+mv whats-up.json ~/Library/Application\ Support/xbar/plugins/.whats-up.json
 ```
 
 Alternatively, create symbolic links.
