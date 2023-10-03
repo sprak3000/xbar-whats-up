@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/sprak3000/go-client/client"
 	"github.com/sprak3000/go-glitch/glitch"
+	"github.com/sprak3000/go-whatsup-client/whatsup"
+
 	"github.com/sprak3000/xbar-whats-up/configuration"
+	"github.com/sprak3000/xbar-whats-up/slack"
 	"github.com/sprak3000/xbar-whats-up/status"
+	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
 // Error codes
@@ -16,6 +19,11 @@ const (
 	ErrorUnableToWriteDefaultConfiguration = "UNABLE_TO_WRITE_DEFAULT_CONFIGURATION"
 	ErrorUnableToParseConfiguration        = "UNABLE_TO_PARSE_CONFIGURATION"
 )
+
+// Reader provides the requirements for anyone implementing reading a service's status
+type Reader interface {
+	ReadStatus(client whatsup.StatusPageClient) (status.Details, glitch.DataError)
+}
 
 // Site holds the data for service status pages
 type Site struct {
@@ -53,7 +61,7 @@ func (s *Site) UnmarshalJSON(data []byte) error {
 type Sites map[string]Site
 
 // GetOverview returns the details about the services monitored
-func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, readerFinder ReaderServiceFinder) status.Overview {
+func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview {
 	overview := status.Overview{
 		OverallStatus: "none",
 		List:          map[string][]status.Details{},
@@ -61,14 +69,23 @@ func (sites Sites) GetOverview(serviceFinder client.ServiceFinder, readerFinder 
 	}
 
 	for k, v := range sites {
-		reader, rfErr := readerFinder(v.Type)
-		if rfErr != nil {
+		var reader Reader
+
+		switch v.Type {
+		case statuspageio.ServiceType:
+			reader = statuspageio.ClientReader{
+				ServiceName: k,
+				PageURL:     v.URL.String(),
+			}
+		case slack.ServiceType:
+			reader = slack.ClientReader{}
+		default:
 			overview.Errors = append(overview.Errors, k+" uses an unsupported service type "+v.Type)
 			// Unsupported at this time
 			continue
 		}
 
-		resp, rErr := reader.ReadStatus(serviceFinder, k, v.URL.Path)
+		resp, rErr := reader.ReadStatus(client)
 		if rErr != nil {
 			overview.Errors = append(overview.Errors, rErr.Error())
 			continue

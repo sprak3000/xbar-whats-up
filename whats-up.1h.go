@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sprak3000/go-whatsup-client/whatsup"
+
 	"github.com/sprak3000/xbar-whats-up/configuration"
 	"github.com/sprak3000/xbar-whats-up/service"
 )
@@ -25,5 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	sites.GetOverview(service.NewClientServiceFinder(sites), service.NewReaderServiceFinder()).Display(os.Stdout)
+	c := whatsup.NewStatusPageClient()
+
+	sites.GetOverview(c).Display(os.Stdout)
 }
