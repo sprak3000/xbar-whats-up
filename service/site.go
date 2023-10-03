@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/sprak3000/go-glitch/glitch"
+	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
 	"github.com/sprak3000/go-whatsup-client/whatsup"
 
 	"github.com/sprak3000/xbar-whats-up/configuration"
@@ -22,7 +23,7 @@ const (
 
 // Reader provides the requirements for anyone implementing reading a service's status
 type Reader interface {
-	ReadStatus(client whatsup.StatusPageClient) (status.Details, glitch.DataError)
+	ReadStatus(client whatsup.StatusPageClient) (whatsupstatus.Details, glitch.DataError)
 }
 
 // Site holds the data for service status pages
@@ -64,7 +65,7 @@ type Sites map[string]Site
 func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview {
 	overview := status.Overview{
 		OverallStatus: "none",
-		List:          map[string][]status.Details{},
+		List:          map[string][]whatsupstatus.Details{},
 		Errors:        []string{},
 	}
 

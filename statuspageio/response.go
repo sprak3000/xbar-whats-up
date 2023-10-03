@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/sprak3000/go-glitch/glitch"
+	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
 	"github.com/sprak3000/go-whatsup-client/whatsup"
-
-	"github.com/sprak3000/xbar-whats-up/status"
 )
 
 // ServiceType is the name we use for various checks
@@ -35,7 +34,7 @@ type ClientReader struct {
 }
 
 // ReadStatus handles communicating with the service to get its status details
-func (cr ClientReader) ReadStatus(client whatsup.StatusPageClient) (status.Details, glitch.DataError) {
+func (cr ClientReader) ReadStatus(client whatsup.StatusPageClient) (whatsupstatus.Details, glitch.DataError) {
 	return client.StatuspageIoService(cr.ServiceName, cr.PageURL)
 }
 
