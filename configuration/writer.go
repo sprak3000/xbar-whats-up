@@ -1,8 +1,9 @@
+// Package configuration handles reading and writing the configuration file for the plugin
 package configuration
 
 import (
 	"io/fs"
-	"io/ioutil"
+	"os"
 )
 
 // Writer provides the requirements for anyone implementing writing configuration files to disk
@@ -16,5 +17,5 @@ type FileWriter struct {
 
 // WriteFile allows us to write configuration to disk
 func (w FileWriter) WriteFile(filename string, data []byte, perm fs.FileMode) error {
-	return ioutil.WriteFile(filename, data, perm)
+	return os.WriteFile(filename, data, perm)
 }
