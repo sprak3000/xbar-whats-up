@@ -4,10 +4,12 @@ package status
 import (
 	"fmt"
 	"io"
+
+	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
 )
 
 // List is a mapping of status codes to services reporting that status code
-type List map[string][]Details
+type List map[string][]whatsupstatus.Details
 
 // Overview provides an overall status for all services monitored -- most severe status wins -- along with all the
 // services categorized by status
@@ -41,7 +43,7 @@ func (o Overview) Display(w io.Writer) {
 	}
 }
 
-func displayDetails(w io.Writer, largestStringSize int, details []Details, detailColor string) {
+func displayDetails(w io.Writer, largestStringSize int, details []whatsupstatus.Details, detailColor string) {
 	_, _ = fmt.Fprintln(w, "---")
 	if len(details) > 0 {
 		for _, v := range details {

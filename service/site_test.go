@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/sprak3000/go-glitch/glitch"
@@ -15,6 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/sprak3000/xbar-whats-up/configuration"
+	"github.com/sprak3000/xbar-whats-up/slack"
 	"github.com/sprak3000/xbar-whats-up/status"
 	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
@@ -116,6 +118,16 @@ func TestUnit_GetOverview(t *testing.T) {
 		},
 	}
 
+	slackURL, err := url.Parse("https://status.slack.com/api/v2.0.0/current")
+	require.NoError(t, err)
+
+	slackNoOutageResp := slack.Response{
+		Status:          "none",
+		DateCreated:     time.Time{},
+		DateUpdated:     time.Time{},
+		ActiveIncidents: nil,
+	}
+
 	tests := map[string]struct {
 		sites                 Sites
 		setupStatusPageClient func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient
@@ -133,22 +145,30 @@ func TestUnit_GetOverview(t *testing.T) {
 					URL:  *circleciURL,
 					Type: statuspageio.ServiceType,
 				},
+				"Slack": {
+					URL:  *slackURL,
+					Type: slack.ServiceType,
+				},
 			},
 			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
 				c := clientmock.NewMockStatusPageClient(ctrl)
 				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).Times(1).Return(codeClimateMinorOutageResp, nil)
 				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).Times(1).Return(circleciMajorOutageResp, nil)
+				c.EXPECT().Slack().Times(1).Return(slackNoOutageResp, nil)
 				return c
 			},
 			expectedOverview: status.Overview{
 				OverallStatus:     "major",
 				LargestStringSize: 11,
-				List: map[string][]status.Details{
+				List: map[string][]whatsupstatus.Details{
 					"major": {
 						circleciMajorOutageResp,
 					},
 					"minor": {
 						codeClimateMinorOutageResp,
+					},
+					"none": {
+						slackNoOutageResp,
 					},
 				},
 				Errors: []string{},
@@ -177,7 +197,7 @@ func TestUnit_GetOverview(t *testing.T) {
 			expectedOverview: status.Overview{
 				OverallStatus:     "minor",
 				LargestStringSize: 11,
-				List: map[string][]status.Details{
+				List: map[string][]whatsupstatus.Details{
 					"minor": {
 						circleciMinorOutageResp,
 					},
@@ -211,7 +231,7 @@ func TestUnit_GetOverview(t *testing.T) {
 			expectedOverview: status.Overview{
 				OverallStatus:     "none",
 				LargestStringSize: 11,
-				List: map[string][]status.Details{
+				List: map[string][]whatsupstatus.Details{
 					"none": {
 						statuspageio.Response{
 							Page: statuspageio.Page{
@@ -247,7 +267,7 @@ func TestUnit_GetOverview(t *testing.T) {
 			},
 			expectedOverview: status.Overview{
 				OverallStatus: "none",
-				List:          map[string][]status.Details{},
+				List:          map[string][]whatsupstatus.Details{},
 				Errors: []string{
 					"CodeClimate uses an unsupported service type not-a-finger",
 				},

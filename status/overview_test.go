@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,7 +23,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				o := Overview{
 					OverallStatus:     "major",
 					LargestStringSize: 12,
-					List: map[string][]Details{
+					List: map[string][]whatsupstatus.Details{
 						"major": {
 							testResponse{
 								updatedAt: now,
@@ -52,7 +53,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				o := Overview{
 					OverallStatus:     "minor",
 					LargestStringSize: 12,
-					List: map[string][]Details{
+					List: map[string][]whatsupstatus.Details{
 						"minor": {
 							testResponse{
 								updatedAt: now,
@@ -77,7 +78,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				o := Overview{
 					OverallStatus:     "none",
 					LargestStringSize: 12,
-					List: map[string][]Details{
+					List: map[string][]whatsupstatus.Details{
 						"none": {
 							testResponse{
 								updatedAt: now,
@@ -97,7 +98,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				o := Overview{
 					OverallStatus:     "none",
 					LargestStringSize: 12,
-					List: map[string][]Details{
+					List: map[string][]whatsupstatus.Details{
 						"none": {
 							testResponse{
 								updatedAt: now,
