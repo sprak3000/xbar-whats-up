@@ -7,10 +7,13 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/sprak3000/go-glitch/glitch"
+	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
+	"github.com/sprak3000/go-whatsup-client/whatsup"
+	"github.com/sprak3000/go-whatsup-client/whatsup/clientmock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sprak3000/go-client/client"
-	"github.com/sprak3000/go-glitch/glitch"
 	"github.com/sprak3000/xbar-whats-up/configuration"
 	"github.com/sprak3000/xbar-whats-up/status"
 	"github.com/sprak3000/xbar-whats-up/statuspageio"
@@ -56,18 +59,69 @@ func TestUnit_Site_UnmarshalJSON(t *testing.T) {
 }
 
 func TestUnit_GetOverview(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	codeClimateURL, err := url.Parse("https://status.codeclimate.com/api/v2/status.json")
 	require.NoError(t, err)
+
+	codeClimateMinorOutageResp := statuspageio.Response{
+		Page: statuspageio.Page{
+			ID:   "code-climate",
+			Name: "CodeClimate",
+			URL:  "https://status.codeclimate.com/api/v2/status.json",
+		},
+		Status: statuspageio.Status{
+			Indicator:   "minor",
+			Description: "minor outage",
+		},
+	}
+
+	codeClimateNoOutageResp := statuspageio.Response{
+		Page: statuspageio.Page{
+			ID:   "code-climate",
+			Name: "CodeClimate",
+			URL:  "https://status.codeclimate.com/api/v2/status.json",
+		},
+		Status: statuspageio.Status{
+			Indicator:   "none",
+			Description: "none",
+		},
+	}
 
 	circleciURL, err := url.Parse("https://status.circleci.com/api/v2/status.json")
 	require.NoError(t, err)
 
+	circleciMajorOutageResp := statuspageio.Response{
+		Page: statuspageio.Page{
+			ID:   "circle-ci",
+			Name: "CircleCI",
+			URL:  "https://status.circleci.com/api/v2/status.json",
+		},
+		Status: statuspageio.Status{
+			Indicator:   "major",
+			Description: "major outage",
+		},
+	}
+
+	circleciMinorOutageResp := statuspageio.Response{
+		Page: statuspageio.Page{
+			ID:   "circle-ci",
+			Name: "CircleCI",
+			URL:  "https://status.circleci.com/api/v2/status.json",
+		},
+		Status: statuspageio.Status{
+			Indicator:   "minor",
+			Description: "minor outage",
+		},
+	}
+
 	tests := map[string]struct {
-		sites            Sites
-		serviceFinder    client.ServiceFinder
-		readerFinder     ReaderServiceFinder
-		expectedOverview status.Overview
-		validate         func(t *testing.T, expectedOverview, actualOverview status.Overview)
+		sites                 Sites
+		setupStatusPageClient func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient
+		expectedOverview      status.Overview
+		expectedClientErr     glitch.DataError
+		validate              func(t *testing.T, expectedOverview, actualOverview status.Overview)
 	}{
 		"base path- highest severity is major": {
 			sites: Sites{
@@ -80,38 +134,21 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: statuspageio.ServiceType,
 				},
 			},
-			readerFinder: func(serviceName string) (Reader, error) {
-				return clientReaderSeverityMajor{}, nil
+			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+				c := clientmock.NewMockStatusPageClient(ctrl)
+				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).Times(1).Return(codeClimateMinorOutageResp, nil)
+				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).Times(1).Return(circleciMajorOutageResp, nil)
+				return c
 			},
 			expectedOverview: status.Overview{
 				OverallStatus:     "major",
 				LargestStringSize: 11,
 				List: map[string][]status.Details{
 					"major": {
-						statuspageio.Response{
-							Page: statuspageio.Page{
-								ID:   "circle-ci",
-								Name: "CircleCI",
-								URL:  "https://status.circleci.com/api/v2/status.json",
-							},
-							Status: statuspageio.Status{
-								Indicator:   "major",
-								Description: "major outage",
-							},
-						},
+						circleciMajorOutageResp,
 					},
 					"minor": {
-						statuspageio.Response{
-							Page: statuspageio.Page{
-								ID:   "code-climate",
-								Name: "CodeClimate",
-								URL:  "https://status.codeclimate.com/api/v2/status.json",
-							},
-							Status: statuspageio.Status{
-								Indicator:   "minor",
-								Description: "minor outage",
-							},
-						},
+						codeClimateMinorOutageResp,
 					},
 				},
 				Errors: []string{},
@@ -131,38 +168,21 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: statuspageio.ServiceType,
 				},
 			},
-			readerFinder: func(serviceName string) (Reader, error) {
-				return clientReaderSeverityMinor{}, nil
+			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+				c := clientmock.NewMockStatusPageClient(ctrl)
+				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).Times(1).Return(codeClimateNoOutageResp, nil)
+				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).Times(1).Return(circleciMinorOutageResp, nil)
+				return c
 			},
 			expectedOverview: status.Overview{
 				OverallStatus:     "minor",
 				LargestStringSize: 11,
 				List: map[string][]status.Details{
 					"minor": {
-						statuspageio.Response{
-							Page: statuspageio.Page{
-								ID:   "circle-ci",
-								Name: "CircleCI",
-								URL:  "https://status.circleci.com/api/v2/status.json",
-							},
-							Status: statuspageio.Status{
-								Indicator:   "minor",
-								Description: "minor outage",
-							},
-						},
+						circleciMinorOutageResp,
 					},
 					"none": {
-						statuspageio.Response{
-							Page: statuspageio.Page{
-								ID:   "code-climate",
-								Name: "CodeClimate",
-								URL:  "https://status.codeclimate.com/api/v2/status.json",
-							},
-							Status: statuspageio.Status{
-								Indicator:   "none",
-								Description: "none",
-							},
-						},
+						codeClimateNoOutageResp,
 					},
 				},
 				Errors: []string{},
@@ -182,8 +202,11 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: statuspageio.ServiceType,
 				},
 			},
-			readerFinder: func(serviceName string) (Reader, error) {
-				return clientReaderHasError{}, nil
+			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+				c := clientmock.NewMockStatusPageClient(ctrl)
+				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).AnyTimes().Return(codeClimateNoOutageResp, nil)
+				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).AnyTimes().Return(nil, glitch.NewDataError(nil, whatsupstatus.ErrorUnableToMakeClientRequest, "test err"))
+				return c
 			},
 			expectedOverview: status.Overview{
 				OverallStatus:     "none",
@@ -215,17 +238,18 @@ func TestUnit_GetOverview(t *testing.T) {
 			sites: Sites{
 				"CodeClimate": {
 					URL:  *codeClimateURL,
-					Type: statuspageio.ServiceType,
+					Type: "not-a-finger",
 				},
 			},
-			readerFinder: func(serviceName string) (Reader, error) {
-				return nil, errors.New("not supported")
+			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+				c := clientmock.NewMockStatusPageClient(ctrl)
+				return c
 			},
 			expectedOverview: status.Overview{
 				OverallStatus: "none",
 				List:          map[string][]status.Details{},
 				Errors: []string{
-					"CodeClimate uses an unsupported service type statuspage.io",
+					"CodeClimate uses an unsupported service type not-a-finger",
 				},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
@@ -235,93 +259,10 @@ func TestUnit_GetOverview(t *testing.T) {
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			o := tc.sites.GetOverview(tc.serviceFinder, tc.readerFinder)
+			o := tc.sites.GetOverview(tc.setupStatusPageClient(t, tc.expectedClientErr))
 			tc.validate(t, tc.expectedOverview, o)
 		})
 	}
-}
-
-type clientReaderSeverityMajor struct {
-}
-
-func (crsMajor clientReaderSeverityMajor) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (status.Details, glitch.DataError) {
-	if serviceName == "CircleCI" {
-		return statuspageio.Response{
-			Page: statuspageio.Page{
-				ID:   "circle-ci",
-				Name: "CircleCI",
-				URL:  "https://status.circleci.com/api/v2/status.json",
-			},
-			Status: statuspageio.Status{
-				Indicator:   "major",
-				Description: "major outage",
-			},
-		}, nil
-	}
-
-	return statuspageio.Response{
-		Page: statuspageio.Page{
-			ID:   "code-climate",
-			Name: "CodeClimate",
-			URL:  "https://status.codeclimate.com/api/v2/status.json",
-		},
-		Status: statuspageio.Status{
-			Indicator:   "minor",
-			Description: "minor outage",
-		},
-	}, nil
-}
-
-type clientReaderSeverityMinor struct {
-}
-
-func (crsMinor clientReaderSeverityMinor) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (status.Details, glitch.DataError) {
-	if serviceName == "CircleCI" {
-		return statuspageio.Response{
-			Page: statuspageio.Page{
-				ID:   "circle-ci",
-				Name: "CircleCI",
-				URL:  "https://status.circleci.com/api/v2/status.json",
-			},
-			Status: statuspageio.Status{
-				Indicator:   "minor",
-				Description: "minor outage",
-			},
-		}, nil
-	}
-
-	return statuspageio.Response{
-		Page: statuspageio.Page{
-			ID:   "code-climate",
-			Name: "CodeClimate",
-			URL:  "https://status.codeclimate.com/api/v2/status.json",
-		},
-		Status: statuspageio.Status{
-			Indicator:   "none",
-			Description: "none",
-		},
-	}, nil
-}
-
-type clientReaderHasError struct {
-}
-
-func (crhe clientReaderHasError) ReadStatus(_ client.ServiceFinder, serviceName, _ string) (status.Details, glitch.DataError) {
-	if serviceName == "CircleCI" {
-		return statuspageio.Response{}, glitch.NewDataError(nil, status.ErrorUnableToMakeClientRequest, "test err")
-	}
-
-	return statuspageio.Response{
-		Page: statuspageio.Page{
-			ID:   "code-climate",
-			Name: "CodeClimate",
-			URL:  "https://status.codeclimate.com/api/v2/status.json",
-		},
-		Status: statuspageio.Status{
-			Indicator:   "none",
-			Description: "none",
-		},
-	}, nil
 }
 
 func TestUnit_LoadSites(t *testing.T) {

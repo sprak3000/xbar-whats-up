@@ -13,21 +13,20 @@ When you write your tests, please make sure they're in line with the existing te
 
 ## Bug Reports
 
-When the inevitable happens and you discover a bug in the documentation or the code, please follow the process below to
-help us out.
+If you discover a bug in the documentation or the code, please follow the process below to help us out.
 
 - Search the existing issues to see if the issue has already been filed
 - Make sure the issue is a bug and not simply a preference
 - If you have found a new issue, please file it
 
-From that point, if you are interest in contributing some code, ask in the issue if we are willing to accept a failing
-test case, and/or a fix. If we are, then follow the steps for contributing and we can go from there!
+From that point, if you are interested in contributing some code, ask in the issue if we are willing to accept a failing
+test case and/or a fix. If we are, then follow the steps for contributing, and we can go from there!
 
 ## Feature Requests
 
 Every new feature request will be scrutinized to make sure we are not going to experience feature bloat. Every new
-feature should fit the Vision for the project. If you have got an idea for a new feature and you feel it fits the
-vision, file an issue and we can discuss it.
+feature should fit the Vision for the project. If you have an idea for a new feature and feel it fits the vision, file
+an issue, and we can discuss it.
 
 Make sure any feature request you make fits the [INVEST](http://en.wikipedia.org/wiki/INVEST_(mnemonic)) mnemonic.
 

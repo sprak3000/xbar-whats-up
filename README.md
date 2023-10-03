@@ -40,9 +40,11 @@ as examples, we would create an entry in the configuration file like this:
 
 ## Usage
 
-Clone this repo and build the plugin.
+Clone this repo, install dependencies, and build the plugin.
 
 ```shell
+git clone git@github.com:sprak3000/xbar-whats-up.git
+make setup-osx-env
 make build
 ```
 
