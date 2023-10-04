@@ -269,7 +269,7 @@ func TestUnit_GetOverview(t *testing.T) {
 				OverallStatus: "none",
 				List:          map[string][]whatsupstatus.Details{},
 				Errors: []string{
-					"CodeClimate uses an unsupported service type not-a-finger",
+					"Code: [" + ErrorUnsupportedServiceType + "] Message: [CodeClimate uses an unsupported service type not-a-finger] Inner error: [%!s(<nil>)]",
 				},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {

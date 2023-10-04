@@ -19,6 +19,7 @@ import (
 const (
 	ErrorUnableToWriteDefaultConfiguration = "UNABLE_TO_WRITE_DEFAULT_CONFIGURATION"
 	ErrorUnableToParseConfiguration        = "UNABLE_TO_PARSE_CONFIGURATION"
+	ErrorUnsupportedServiceType            = "UNSUPPORTED_SERVICE_TYPE"
 )
 
 // Reader provides the requirements for anyone implementing reading a service's status
@@ -61,6 +62,37 @@ func (s *Site) UnmarshalJSON(data []byte) error {
 // Sites is a mapping of services to their status page data
 type Sites map[string]Site
 
+type readerResult struct {
+	details whatsupstatus.Details
+	err     glitch.DataError
+}
+
+func readStatusPage(c whatsup.StatusPageClient, serviceName string, s Site) readerResult {
+	var reader Reader
+
+	switch s.Type {
+	case statuspageio.ServiceType:
+		reader = statuspageio.ClientReader{
+			ServiceName: serviceName,
+			PageURL:     s.URL.String(),
+		}
+	case slack.ServiceType:
+		reader = slack.ClientReader{}
+	default:
+		// Unsupported at this time
+		return readerResult{
+			details: nil,
+			err:     glitch.NewDataError(nil, ErrorUnsupportedServiceType, serviceName+" uses an unsupported service type "+s.Type),
+		}
+	}
+
+	resp, err := reader.ReadStatus(c)
+	return readerResult{
+		details: resp,
+		err:     err,
+	}
+}
+
 // GetOverview returns the details about the services monitored
 func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview {
 	overview := status.Overview{
@@ -69,45 +101,38 @@ func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview 
 		Errors:        []string{},
 	}
 
+	c := make(chan readerResult)
+
 	for k, v := range sites {
-		var reader Reader
+		serviceName := k
+		site := v
+		go func() { c <- readStatusPage(client, serviceName, site) }()
+	}
 
-		switch v.Type {
-		case statuspageio.ServiceType:
-			reader = statuspageio.ClientReader{
-				ServiceName: k,
-				PageURL:     v.URL.String(),
-			}
-		case slack.ServiceType:
-			reader = slack.ClientReader{}
-		default:
-			overview.Errors = append(overview.Errors, k+" uses an unsupported service type "+v.Type)
-			// Unsupported at this time
+	for i := 0; i < len(sites); i++ {
+		resp := <-c
+
+		if resp.err != nil {
+			overview.Errors = append(overview.Errors, resp.err.Error())
 			continue
 		}
 
-		resp, rErr := reader.ReadStatus(client)
-		if rErr != nil {
-			overview.Errors = append(overview.Errors, rErr.Error())
-			continue
-		}
-
-		nameSize := len(resp.Name())
+		nameSize := len(resp.details.Name())
 		if nameSize > overview.LargestStringSize {
 			overview.LargestStringSize = nameSize
 		}
 
-		switch resp.Indicator() {
+		switch resp.details.Indicator() {
 		case "major":
 			overview.OverallStatus = "major"
-			overview.List["major"] = append(overview.List["major"], resp)
+			overview.List["major"] = append(overview.List["major"], resp.details)
 		case "minor":
 			if overview.OverallStatus != "major" {
 				overview.OverallStatus = "minor"
 			}
-			overview.List["minor"] = append(overview.List["minor"], resp)
+			overview.List["minor"] = append(overview.List["minor"], resp.details)
 		default:
-			overview.List["none"] = append(overview.List["none"], resp)
+			overview.List["none"] = append(overview.List["none"], resp.details)
 		}
 	}
 
