@@ -8,8 +8,8 @@ require github.com/sprak3000/go-client v1.1.0
 
 require (
 	github.com/sprak3000/go-glitch v1.1.0
-	github.com/sprak3000/go-whatsup-client v1.1.0
-	github.com/stretchr/testify v1.8.4
+	github.com/sprak3000/go-whatsup-client v1.2.0
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
