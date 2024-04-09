@@ -37,7 +37,7 @@ func TestUnit_Site_UnmarshalJSON(t *testing.T) {
 				URL:  *codeClimateURL,
 				Type: statuspageio.ServiceType,
 			},
-			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
+			validate: func(t *testing.T, expectedSite, actualSite Site, _, actualErr error) {
 				require.NoError(t, actualErr)
 				require.Equal(t, expectedSite, actualSite)
 			},
@@ -45,7 +45,7 @@ func TestUnit_Site_UnmarshalJSON(t *testing.T) {
 		"exceptional path- parse URL error": {
 			siteJSON:    []byte(`{"url":":","type":"statuspage.io"}`),
 			expectedErr: errors.New(`parse ":": missing protocol scheme`),
-			validate: func(t *testing.T, expectedSite, actualSite Site, expectedErr, actualErr error) {
+			validate: func(t *testing.T, _, _ Site, expectedErr, actualErr error) {
 				require.Error(t, actualErr)
 				require.Equal(t, expectedErr.Error(), actualErr.Error())
 			},
@@ -150,7 +150,7 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: slack.ServiceType,
 				},
 			},
-			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+			setupStatusPageClient: func(_ *testing.T, _ glitch.DataError) whatsup.StatusPageClient {
 				c := clientmock.NewMockStatusPageClient(ctrl)
 				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).Times(1).Return(codeClimateMinorOutageResp, nil)
 				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).Times(1).Return(circleciMajorOutageResp, nil)
@@ -188,7 +188,7 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: statuspageio.ServiceType,
 				},
 			},
-			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+			setupStatusPageClient: func(_ *testing.T, _ glitch.DataError) whatsup.StatusPageClient {
 				c := clientmock.NewMockStatusPageClient(ctrl)
 				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).Times(1).Return(codeClimateNoOutageResp, nil)
 				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).Times(1).Return(circleciMinorOutageResp, nil)
@@ -222,7 +222,7 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: statuspageio.ServiceType,
 				},
 			},
-			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+			setupStatusPageClient: func(_ *testing.T, _ glitch.DataError) whatsup.StatusPageClient {
 				c := clientmock.NewMockStatusPageClient(ctrl)
 				c.EXPECT().StatuspageIoService("CodeClimate", codeClimateURL.String()).AnyTimes().Return(codeClimateNoOutageResp, nil)
 				c.EXPECT().StatuspageIoService("CircleCI", circleciURL.String()).AnyTimes().Return(nil, glitch.NewDataError(nil, whatsupstatus.ErrorUnableToMakeClientRequest, "test err"))
@@ -261,7 +261,7 @@ func TestUnit_GetOverview(t *testing.T) {
 					Type: "not-a-finger",
 				},
 			},
-			setupStatusPageClient: func(t *testing.T, expectedErr glitch.DataError) whatsup.StatusPageClient {
+			setupStatusPageClient: func(_ *testing.T, _ glitch.DataError) whatsup.StatusPageClient {
 				c := clientmock.NewMockStatusPageClient(ctrl)
 				return c
 			},
@@ -306,7 +306,7 @@ func TestUnit_LoadSites(t *testing.T) {
 					Type: statuspageio.ServiceType,
 				},
 			},
-			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {
+			validate: func(t *testing.T, expectedSites, actualSites Sites, _, actualErr glitch.DataError) {
 				require.NoError(t, actualErr)
 				require.Equal(t, expectedSites, actualSites)
 			},
@@ -315,7 +315,7 @@ func TestUnit_LoadSites(t *testing.T) {
 			reader:        fileReaderWithoutFilename{},
 			writer:        fileWriterSuccess{},
 			expectedSites: Sites{},
-			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {
+			validate: func(t *testing.T, expectedSites, actualSites Sites, _, actualErr glitch.DataError) {
 				require.NoError(t, actualErr)
 				require.Equal(t, expectedSites, actualSites)
 			},
@@ -324,7 +324,7 @@ func TestUnit_LoadSites(t *testing.T) {
 			reader:      fileReaderWithoutFilename{},
 			writer:      fileWriterErr{},
 			expectedErr: glitch.NewDataError(errors.New("write err"), ErrorUnableToWriteDefaultConfiguration, "unable to create default What's Up configuration"),
-			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {
+			validate: func(t *testing.T, _, _ Sites, expectedErr, actualErr glitch.DataError) {
 				require.Error(t, actualErr)
 				require.Equal(t, expectedErr.Code(), actualErr.Code())
 			},
@@ -333,7 +333,7 @@ func TestUnit_LoadSites(t *testing.T) {
 			reader:      fileReaderReturnsInvalidContents{},
 			filename:    "test-config.json",
 			expectedErr: glitch.NewDataError(nil, ErrorUnableToParseConfiguration, "error parsing What's Up configuration"),
-			validate: func(t *testing.T, expectedSites, actualSites Sites, expectedErr, actualErr glitch.DataError) {
+			validate: func(t *testing.T, _, _ Sites, expectedErr, actualErr glitch.DataError) {
 				require.Error(t, actualErr)
 				require.Equal(t, expectedErr.Code(), actualErr.Code())
 			},

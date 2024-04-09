@@ -9,7 +9,7 @@ analyze: lint vet test ## Run lint, vet, and test
 
 .PHONY: lint
 lint: ## Lint the code
-	@! revive -config .revive.toml ./... | grep -v vendor
+	@revive -config .revive.toml ./... | grep -v vendor
 
 .PHONY: test
 test: unit-test ## Run the test suite(s).
