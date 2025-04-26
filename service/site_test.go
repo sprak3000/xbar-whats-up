@@ -10,15 +10,15 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/sprak3000/go-glitch/glitch"
+	"github.com/sprak3000/go-whatsup-client/slack"
 	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
+	"github.com/sprak3000/go-whatsup-client/statuspageio"
 	"github.com/sprak3000/go-whatsup-client/whatsup"
 	"github.com/sprak3000/go-whatsup-client/whatsup/clientmock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/sprak3000/xbar-whats-up/configuration"
-	"github.com/sprak3000/xbar-whats-up/slack"
 	"github.com/sprak3000/xbar-whats-up/status"
-	"github.com/sprak3000/xbar-whats-up/statuspageio"
 )
 
 func TestUnit_Site_UnmarshalJSON(t *testing.T) {
