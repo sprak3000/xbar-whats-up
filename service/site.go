@@ -98,7 +98,7 @@ func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview 
 	overview := status.Overview{
 		OverallStatus: "none",
 		List:          map[string][]whatsupstatus.Details{},
-		Errors:        []string{},
+		Errors:        []status.OverviewError{},
 	}
 
 	c := make(chan readerResult)
@@ -113,7 +113,10 @@ func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview 
 		resp := <-c
 
 		if resp.err != nil {
-			overview.Errors = append(overview.Errors, resp.err.Error())
+			overview.Errors = append(overview.Errors, status.OverviewError{
+				Details: resp.details,
+				Error:   resp.err,
+			})
 			continue
 		}
 
