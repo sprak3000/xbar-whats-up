@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sprak3000/go-glitch/glitch"
 	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
 	"github.com/stretchr/testify/require"
 )
@@ -45,7 +46,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🔴\n---\n\x1b[31;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[38;5;208mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n", buf.String())
+				require.Equal(t, "🔴\n---\n\x1b[31;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[38;5;208mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n", buf.String())
 			},
 		},
 		"base path- overall status minor": {
@@ -70,7 +71,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🟠\n---\n---\n\x1b[38;5;208mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n", buf.String())
+				require.Equal(t, "🟠\n---\n\x1b[38;5;208mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n", buf.String())
 			},
 		},
 		"base path- overall status none": {
@@ -90,7 +91,7 @@ func TestUnit_Overview_Display(t *testing.T) {
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🟢\n---\n---\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n", buf.String())
+				require.Equal(t, "🟢\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n", buf.String())
 			},
 		},
 		"base path- has error": {
@@ -105,15 +106,18 @@ func TestUnit_Overview_Display(t *testing.T) {
 							},
 						},
 					},
-					Errors: []string{
-						"Something went wrong with a test service.",
+					Errors: []OverviewError{
+						{
+							Details: testResponse{updatedAt: now},
+							Error:   glitch.NewDataError(nil, "WRONG", "Something went wrong with a test service."),
+						},
 					},
 				}
 
 				var buf bytes.Buffer
 				o.Display(&buf)
 
-				require.Equal(t, "🟢\n---\n---\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\nSomething went wrong with a test service.\n", buf.String())
+				require.Equal(t, "🟢\n---\n\x1b[32;1mTest Service     \x1b[0m\x1b[30m "+nowFormatted+" | font=Monaco href=https://test.service/\n---\n\x1b[31;1mTest Service     \x1b[0m\x1b[30m 2025 Apr 26 | font=Monaco href=https://test.service/\n----\nCode: [WRONG] Message: [Something went wrong with a test service.] Inner error: [%!s(<nil>)]", buf.String())
 			},
 		},
 	}

@@ -171,7 +171,7 @@ func TestUnit_GetOverview(t *testing.T) {
 						slackNoOutageResp,
 					},
 				},
-				Errors: []string{},
+				Errors: []status.OverviewError{},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
 				require.Equal(t, expectedOverview, actualOverview)
@@ -205,7 +205,7 @@ func TestUnit_GetOverview(t *testing.T) {
 						codeClimateNoOutageResp,
 					},
 				},
-				Errors: []string{},
+				Errors: []status.OverviewError{},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
 				require.Equal(t, expectedOverview, actualOverview)
@@ -246,8 +246,11 @@ func TestUnit_GetOverview(t *testing.T) {
 						},
 					},
 				},
-				Errors: []string{
-					"Code: [UNABLE_TO_MAKE_CLIENT_REQUEST] Message: [test err] Inner error: [%!s(<nil>)]",
+				Errors: []status.OverviewError{
+					{
+						Details: nil,
+						Error:   glitch.NewDataError(nil, "UNABLE_TO_MAKE_CLIENT_REQUEST", "test err"),
+					},
 				},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
@@ -268,8 +271,11 @@ func TestUnit_GetOverview(t *testing.T) {
 			expectedOverview: status.Overview{
 				OverallStatus: "none",
 				List:          map[string][]whatsupstatus.Details{},
-				Errors: []string{
-					"Code: [" + ErrorUnsupportedServiceType + "] Message: [CodeClimate uses an unsupported service type not-a-finger] Inner error: [%!s(<nil>)]",
+				Errors: []status.OverviewError{
+					{
+						Details: nil,
+						Error:   glitch.NewDataError(nil, ErrorUnsupportedServiceType, "CodeClimate uses an unsupported service type not-a-finger"),
+					},
 				},
 			},
 			validate: func(t *testing.T, expectedOverview, actualOverview status.Overview) {
