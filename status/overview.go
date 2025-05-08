@@ -4,6 +4,7 @@ package status
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/sprak3000/go-glitch/glitch"
 	whatsupstatus "github.com/sprak3000/go-whatsup-client/status"
@@ -14,8 +15,10 @@ type List map[string][]whatsupstatus.Details
 
 // OverviewError bundles the details of a failed overview request
 type OverviewError struct {
-	Details whatsupstatus.Details
-	Error   glitch.DataError
+	ServiceName string
+	ServiceURL  string
+	Details     whatsupstatus.Details
+	Error       glitch.DataError
 }
 
 // Overview provides an overall status for all services monitored -- most severe status wins -- along with all the
@@ -44,10 +47,9 @@ func (o Overview) Display(w io.Writer) {
 
 	if len(o.Errors) > 0 {
 		_, _ = fmt.Fprintln(w, "---")
-		for _, v := range o.Errors {
-			_, _ = fmt.Fprintf(w, "%s%-*s%s%s %s | font=Monaco href=%s\n", "\u001B[31;1m", o.LargestStringSize+5, v.Details.Name(), "\u001b[0m", "\u001b[30m", v.Details.UpdatedAt().Format("2006 Jan 02"), v.Details.URL())
-			_, _ = fmt.Fprintln(w, "----")
-			_, _ = fmt.Fprintf(w, "%s", v.Error.Error())
+		for _, e := range o.Errors {
+			_, _ = fmt.Fprintf(w, "⁉️ %s%-*s%s%s %s | font=Monaco href=%s\n", "\u001B[31;1m", o.LargestStringSize+2, e.ServiceName, "\u001b[0m", "\u001b[30m", time.Now().Format("2006 Jan 02"), e.ServiceURL)
+			_, _ = fmt.Fprintln(w, "-- Error fetching site status.")
 		}
 	}
 }
