@@ -248,8 +248,10 @@ func TestUnit_GetOverview(t *testing.T) {
 				},
 				Errors: []status.OverviewError{
 					{
-						Details: nil,
-						Error:   glitch.NewDataError(nil, "UNABLE_TO_MAKE_CLIENT_REQUEST", "test err"),
+						ServiceName: "CircleCI",
+						ServiceURL:  "https://status.circleci.com/api/v2/status.json",
+						Details:     nil,
+						Error:       glitch.NewDataError(nil, "UNABLE_TO_MAKE_CLIENT_REQUEST", "test err"),
 					},
 				},
 			},
@@ -273,8 +275,10 @@ func TestUnit_GetOverview(t *testing.T) {
 				List:          map[string][]whatsupstatus.Details{},
 				Errors: []status.OverviewError{
 					{
-						Details: nil,
-						Error:   glitch.NewDataError(nil, ErrorUnsupportedServiceType, "CodeClimate uses an unsupported service type not-a-finger"),
+						ServiceName: "CodeClimate",
+						ServiceURL:  "https://status.codeclimate.com/api/v2/status.json",
+						Details:     nil,
+						Error:       glitch.NewDataError(nil, ErrorUnsupportedServiceType, "CodeClimate uses an unsupported service type not-a-finger"),
 					},
 				},
 			},

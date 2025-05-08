@@ -63,8 +63,10 @@ func (s *Site) UnmarshalJSON(data []byte) error {
 type Sites map[string]Site
 
 type readerResult struct {
-	details whatsupstatus.Details
-	err     glitch.DataError
+	serviceName string
+	serviceURL  string
+	details     whatsupstatus.Details
+	err         glitch.DataError
 }
 
 func readStatusPage(c whatsup.StatusPageClient, serviceName string, s Site) readerResult {
@@ -81,15 +83,19 @@ func readStatusPage(c whatsup.StatusPageClient, serviceName string, s Site) read
 	default:
 		// Unsupported at this time
 		return readerResult{
-			details: nil,
-			err:     glitch.NewDataError(nil, ErrorUnsupportedServiceType, serviceName+" uses an unsupported service type "+s.Type),
+			serviceName: serviceName,
+			serviceURL:  s.URL.String(),
+			details:     nil,
+			err:         glitch.NewDataError(nil, ErrorUnsupportedServiceType, serviceName+" uses an unsupported service type "+s.Type),
 		}
 	}
 
 	resp, err := reader.ReadStatus(c)
 	return readerResult{
-		details: resp,
-		err:     err,
+		serviceName: serviceName,
+		serviceURL:  s.URL.String(),
+		details:     resp,
+		err:         err,
 	}
 }
 
@@ -114,8 +120,10 @@ func (sites Sites) GetOverview(client whatsup.StatusPageClient) status.Overview 
 
 		if resp.err != nil {
 			overview.Errors = append(overview.Errors, status.OverviewError{
-				Details: resp.details,
-				Error:   resp.err,
+				ServiceName: resp.serviceName,
+				ServiceURL:  resp.serviceURL,
+				Details:     resp.details,
+				Error:       resp.err,
 			})
 			continue
 		}
